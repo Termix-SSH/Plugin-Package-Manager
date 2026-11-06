@@ -182,6 +182,34 @@ describe("summary", () => {
   });
 });
 
+describe("update alerts", () => {
+  const read = async (settings: Record<string, unknown>) => {
+    s = await startServer({ settings });
+    s.mock.ctx.currentActor = () => "u1";
+    Object.assign(s.mock.ctx.hosts, { list: async () => [{ id: 1 }] });
+    s.ssh.replies.push({ match: "manager=", stdout: status() });
+    s.ssh.replies.push({ match: "apt list --upgradable", stdout: UPDATES });
+    await s.request("GET", "/summary?refresh=1");
+    return s;
+  };
+
+  it("sends one alert for security updates and one for a reboot", async () => {
+    const t = await read({ alertUpdates: true });
+    const sent = t.mock.notifications.map((n) => n.notification.category);
+    expect(sent.sort()).toEqual([
+      "package-manager.reboot",
+      "package-manager.security",
+    ]);
+    await t.request("GET", "/summary?refresh=1");
+    expect(t.mock.notifications).toHaveLength(2);
+  });
+
+  it("stays quiet unless the host turns alerts on", async () => {
+    const t = await read({});
+    expect(t.mock.notifications).toHaveLength(0);
+  });
+});
+
 describe("scripts", () => {
   const bash = spawnSync("bash", ["-c", "true"]).status === 0;
   const managers: Manager[] = ["apt", "dnf", "yum", "zypper", "pacman", "apk"];
