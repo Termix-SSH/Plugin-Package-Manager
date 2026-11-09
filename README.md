@@ -27,6 +27,7 @@ Read the [docs](https://docs.termix.site/plugins/package-manager) to set it up a
 - Read the package history and the list of repositories
 - Works with apt, dnf, yum, zypper, pacman and apk
 - A dashboard card with pending updates on every host and a Packages card in Host Metrics
+- Upgrade, install and remove through Termix actions, with pending updates as a status tile
 
 <br />
 

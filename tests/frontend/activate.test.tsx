@@ -81,6 +81,50 @@ describe(`${manifest.id} activate`, () => {
     expect(rendered.registered.tabs()).toEqual(["package-manager"]);
   });
 
+  it("adds a homepage widget and keeps the panel switch in the manifest", async () => {
+    rendered = await renderWithApp(plugin, { manifest, locales });
+    expect(rendered.registered.extensions("homepage.widgets")).toEqual([
+      "package_updates_widget",
+    ]);
+    expect(manifest.contributes.uses).toContain("homepage.widgets");
+    const fields = (
+      manifest.contributes.settings as {
+        host: { fields: Array<{ key: string }> };
+      }
+    ).host.fields.map((f) => f.key);
+    expect(fields).toContain("showPanel");
+  });
+
+  it("shows pending updates in the homepage widget", async () => {
+    rendered = await renderWithApp(plugin, {
+      manifest,
+      locales,
+      permissions: ["package-manager.use"],
+      hosts: [{ id: "7", name: "apps", ip: "10.0.0.7", port: 22 }],
+      api: {
+        get: vi.fn(async () => ({
+          data: [
+            {
+              hostId: 7,
+              updates: 3,
+              security: 1,
+              reboot: false,
+              checkedAt: "",
+            },
+          ],
+        })),
+      } as never,
+    });
+    const view = rendered.renderExtension(
+      "homepage.widgets",
+      "package_updates_widget",
+      "view",
+      { widget: { title: null }, config: {} },
+    );
+    expect(await screen.findByText("apps")).toBeTruthy();
+    expect(view.textContent).toContain("3 updates");
+  });
+
   it("lists updates with security first and the reboot notice", async () => {
     rendered = await renderWithApp(plugin, {
       manifest,
