@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Termix-SSH/Termix/main/scripts/authz/authz.schema.json",
+  "seed": [],
+  "routes": {
+    "POST /plugin-api/package-manager/:hostId/action": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/history": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/installed": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/repos": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/search": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/status": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/:hostId/updates": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect"
+      }
+    },
+    "GET /plugin-api/package-manager/summary": {
+      "access": "user",
+      "permission": "package-manager.use",
+      "resource": {
+        "kind": "host",
+        "min": "connect",
+        "key": "hostId"
+      },
+      "filtered": true,
+      "note": "Lists only what the caller may see"
+    }
+  }
+}
