@@ -125,6 +125,41 @@ describe(`${manifest.id} activate`, () => {
     expect(view.textContent).toContain("3 updates");
   });
 
+  it("switches to Flatpak, Snap or Homebrew when the host has them", async () => {
+    Object.assign(window.HTMLElement.prototype, {
+      hasPointerCapture: () => false,
+      releasePointerCapture: () => {},
+      scrollIntoView: () => {},
+    });
+    const client = api({ ...status, extras: ["flatpak", "brew"] });
+    rendered = await renderWithApp(plugin, { manifest, locales, api: client });
+    rendered.renderTab("package-manager", { isVisible: true, host });
+    expect(await screen.findByText("curl")).toBeTruthy();
+    const picker = await screen.findByRole("combobox", {
+      name: locales.managers.label,
+    });
+    fireEvent.pointerDown(picker, { button: 0, pointerType: "mouse" });
+    fireEvent.click(
+      await screen.findByRole("option", { name: locales.managers.brew }),
+    );
+    await screen.findByText(locales.managers.brew);
+    const get = (client as unknown as { get: ReturnType<typeof vi.fn> }).get;
+    expect(get).toHaveBeenCalledWith("/1/updates?manager=brew");
+  });
+
+  it("has no picker without extras", async () => {
+    rendered = await renderWithApp(plugin, {
+      manifest,
+      locales,
+      api: api({ ...status, extras: [] }),
+    });
+    rendered.renderTab("package-manager", { isVisible: true, host });
+    expect(await screen.findByText("curl")).toBeTruthy();
+    expect(
+      screen.queryByRole("combobox", { name: locales.managers.label }),
+    ).toBeNull();
+  });
+
   it("lists updates with security first and the reboot notice", async () => {
     rendered = await renderWithApp(plugin, {
       manifest,
